@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        /* CSS для стилизации */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('background.jpg'); /* Путь к вашему изображению */
+            background-size: cover;
+        }
+        #energy-bar {
+            width: 100%;
+            height: 5%;
+            background-color: #ccc;
+            position: fixed;
+            bottom: 10%;
+            left: 0;
+            z-index: 1000;
+        }
+        #energy-level {
+            height: 100%;
+            background-color: #4CAF50;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 85%; /* Оставляем 85% высоты экрана для игры */
+        }
+        #coin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+        #buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10%; /* Оставляем 10% высоты экрана для кнопок */
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #score {
+            position: absolute;
+            top: calc(50% - 50px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+        }
+        #timer {
+            position: absolute;
+            top: calc(5% - 25px);
+            right: 10px;
+            font-size: 14px;
+            color: #000;
+        }
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="energy-bar">
+        <div id="energy-level"></div>
+    </div>
+    <div id="game-container">
+        <img id="coin" src="coin.png" alt="Coin">
+        <div id="score">0</div>
+        <div id="timer">0 энергии = 0 сек</div>
+    </div>
+    <div id="buttons">
+        <button class="button" onclick="showFriends()">Друзья</button>
+        <button class="button">Рейтинг</button>
+        <button class="button">Задания</button>
+        <button class="button">Бусты</button>
+    </div>
+
+    <!-- Модальное окно для отображения списка друзей -->
+    <div id="friendsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideFriends()">&times;</span>
+            <h2>Список друзей</h2>
+            <ul id="friendsList">
+                <!-- Здесь будет список друзей и их количество монет -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript для взаимодействия с игрой
+        var energy = 100; // начальное значение энергии
+        var score = 0; // начальное значение счетчика баллов
+        var timer = 0; // начальное значение таймера
+
+        // обработчик клика по монете
+        document.getElementById('coin').addEventListener('click', function() {
+            // уменьшаем энергию
+            if (energy > 0) {
+                energy -= 10;
+                updateEnergyBar();
+
+                // увеличиваем счетчик баллов
+                score += 1;
+                updateScore();
+            }
+        });
+
+        // функция обновления полоски энергии
+        function updateEnergyBar() {
+            if (energy <= 0) {
+                // если энергия исчерпана, скрываем полоску
+                document.getElementById('energy-bar').style.display = 'none';
+            } else {
+                // обновляем ширину полоски в зависимости от энергии
+                document.getElementById('energy-level').style.width = energy + '%';
+            }
+        }
+
+        // функция обновления счетчика баллов
+        function updateScore() {
+            // обновляем значение счетчика
+            document.getElementById('score').textContent = score;
+        }
+
+        // функция обновления таймера
+        function updateTimer() {
+            if (energy < 100) {
+                timer += 1;
+                document.getElementById('timer').textContent = energy + ' энергии = ' + timer + ' сек';
+            }
+        }
+
+        // функция для показа модального окна с друзьями и их монетами
+        function showFriends() {
+            var modal = document.getElementById('friendsModal');
+            modal.style.display = 'block';
+
+            // Здесь можно добавить код для загрузки списка друзей и их монет
+            // Например:
+            var friendsList = document.getElementById('friendsList');
+            friendsList.innerHTML = '<li>Друг 1: 100 монет</li><li>Друг 2: 50 монет</li>'; // Пример данных о друзьях
+        }
+
+        // функция для скрытия модального окна с друзьями
+        function hideFriends() {
+            var modal = document.getElementById('friendsModal');
+            modal.style.display = 'none';
+        }
+
+        // запускаем таймер с интервалом 1 секунда
+        setInterval(updateTimer, 1000);
+
+        updateEnergyBar(); // вызываем функцию для отображения начального значения энергии
+        updateScore(); // вызываем функцию для отображения начального значения счетчика баллов
+        updateTimer(); // вызываем функцию для отображения начального значения таймера
+    </script>
+</body>
+</html>
